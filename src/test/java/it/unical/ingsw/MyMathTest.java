@@ -74,16 +74,6 @@ public class MyMathTest {
         assertEquals(12.01, 12.05, 0.40);
     }
 
-    @Test
-    public void assertStatic() throws IOException {
-
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody formBody = RequestBody.create("{}", JSON);
-        Mockito.mockStatic(RequestBody.class);
-        when(RequestBody.create(anyString(), eq(JSON))).thenReturn(formBody);
-        assertEquals(RequestBody.create("dasdas", JSON), formBody);
-    }
-
 //	JUNIT 4: @Test(expected = IllegalArgumentException.class)
 //	public void fibonacciThrowsException() {
 //		System.out.println("fibonacciThrowsException");
@@ -117,23 +107,22 @@ public class MyMathTest {
 
     /**
      * Should call connectionManagerMock.isNetworkConnected(),
-     * httpClientMock.sendPost(), and return the number in the last position of the
+     * httpClientMock.post(), and return the number in the last position of the
      * RESULT array which is the nth number in the Fibonacci series
      */
     @Test
     public void remoteFibonacciWorks() throws MalformedURLException, Exception {
         System.out.println("testing that remoteFibonacci Works");
         // Inizializziamo il Map di parametri usati per la richiesta online (limit=5)
-        // 5 è solo una scelta, potete usare qualsiasi numero, visto che sendPost()
-        // ritornerà quello che voremmo noi
+        // 5 è solo una scelta, potete usare qualsiasi numero, visto che post()
+        // ritornerà quello che vogliamo noi
         int n = 5;
         Map<String, String> queryParameters = new HashMap<String, String>();
         queryParameters.put("limit", String.valueOf(n));
 
         // Qui forziamo al metodo connectionManagerMock.isNetworkConnected() a ritornare
-        // true quando venga eseguito, evitando un'exception per problemi di
-        // collegamento a
-        // internet
+        // true quando venga eseguito, evitando un exception per problemi di
+        // collegamento a internet
         when(connectionManagerMock.isConnected()).thenReturn(true);
 
         // Qui forziamo il metodo httpClientMock.sendPost() a restituire una stringa con
@@ -145,36 +134,36 @@ public class MyMathTest {
         when(httpClientMock.post(anyString(), any(String.class), anyMap()))
                 .thenReturn("{\"result\":[\"0\",\"1\",\"1\",\"2\",\"3\",\"5\",\"8\",\"13\",\"21\",\"34\"]}");
 
-        // Eseguiamo il metodo remoteFibbonacci
+        // Eseguiamo il metodo remoteFibonacci
         BigInteger fib = myMath.remoteFibonacci(n);
 
         // Qui verifichiamo che connectionManagerMock.isNetworkConnected() sia stato
         // eseguito una volta, non più non meno
         verify(connectionManagerMock, times(1)).isConnected();
 
-        // Qui verifichiamo che httpClientMock.sendPost() sia stato eseguito una volta
-        // con i parametri giusti (sendPost("fibonacci-numbers", "", queryParameters);)
-        // Se remoteFibbonacci viene eseguito con "n=5", allora sendPost() deve
+        // Qui verifichiamo che httpClientMock.post() sia stato eseguito una volta
+        // con i parametri giusti (post("fibonacci-numbers", "", queryParameters);)
+        // Se remoteFibonacci viene eseguito con "n=5", allora post() deve
         // essere eseguito passando limit=5
         verify(httpClientMock, times(1)).post("fibonacci-numbers", "", queryParameters);
 
         // Verifichiamo che la risposta sia quella giusta, ovvero 34, il quale è
         // l'ultimo numero dell'array. Lo stesso array che richiediamo al nostro oggetto
         // mockato
-        // (httpClientMock) di restituirci quando viene eseguito sendPost() con
+        // (httpClientMock) di restituirci quando viene eseguito post() con
         // qualsiasi set di parametri
         assertEquals(BigInteger.valueOf(34), fib);
     }
 
     /**
      * Should call connectionManagerMock.isNetworkConnected(),
-     * httpClientMock.sendPost() that returns an empty string (no HTTP 200 status
+     * httpClientMock.post() that returns an empty string (no HTTP 200 status
      * code), and then return -1
      */
     @Test
     public void remoteFibonacciWorkWithEmptyStringResponse() throws MalformedURLException, Exception {
-        System.out.println("testing that remoteFibbonacci returns -1 when empty string");
-        // Inizializziamo il Map di paramitri usati per la richiesta online (limit=7)
+        System.out.println("testing that remoteFibonacci returns -1 when empty string");
+        // Inizializziamo il Map di parametri usati per la richiesta online (limit=7)
         int n = 5;
         Map<String, String> queryParameters = new HashMap<String, String>();
         queryParameters.put("limit", String.valueOf(n));
@@ -184,7 +173,7 @@ public class MyMathTest {
         // collegamento a internet
         when(connectionManagerMock.isConnected()).thenReturn(true);
 
-        // Qui forziamo il metodo httpClientMock.sendPost() a restituire la stringa
+        // Qui forziamo il metodo httpClientMock.post() a restituire la stringa
         // "{\"result\":[]}", ovvero array di risultati vuoto
         // anyString, any(String.class) e anyMap(), ci serve ad indicare che il
         // comportamento che stiamo forzando verrà imposto al metodo quando esso venga
@@ -198,25 +187,25 @@ public class MyMathTest {
         // eseguito una volta, non più non meno
         verify(connectionManagerMock, times(1)).isConnected();
 
-        // Qui verifichiamo che httpClientMock.sendPost() sia stato eseguito una volta
-        // con i parametri giusti (sendPost("fibonacci-numbers", "", queryParameters);)
-        // Se remoteFibbonacci viene eseguito con "n=5", allora sendPost() deve
+        // Qui verifichiamo che httpClientMock.post() sia stato eseguito una volta
+        // con i parametri giusti (post("fibonacci-numbers", "", queryParameters);)
+        // Se remoteFibonacci viene eseguito con "n=5", allora post() deve
         // essere eseguito passando limit=5
         verify(httpClientMock, times(1)).post("fibonacci-numbers", "", queryParameters);
 
         // Verifichiamo che la risposta sia -1, ovvero la risposta che ci aspettiamo in caso di
-        // array di risultati vuoti da parte di sendpost()
+        // array di risultati vuoti da parte di post()
         assertEquals(BigInteger.valueOf(-1), fib);
     }
 
     /**
      * Should call connectionManagerMock.isNetworkConnected(),
-     * httpClientMock.sendPost() that returns an empty array, and then return -1
+     * httpClientMock.post() that returns an empty array, and then return -1
      */
     @Test
     public void remoteFibonacciWorkWithEmptyResults() throws MalformedURLException, Exception {
-        System.out.println("testing that remoteFibbonacci returns -1 when empty results array");
-        // Inizializziamo il Map di paramitri usati per la richiesta online (limit=7)
+        System.out.println("testing that remoteFibonacci returns -1 when empty results array");
+        // Inizializziamo il Map di parametri usati per la richiesta online (limit=7)
         int n = 5;
         Map<String, String> queryParameters = new HashMap<String, String>();
         queryParameters.put("limit", String.valueOf(n));
@@ -226,7 +215,7 @@ public class MyMathTest {
         // internet
         when(connectionManagerMock.isConnected()).thenReturn(true);
 
-        // Qui forziamo il metodo httpClientMock.sendPost() a restituirci la stringa
+        // Qui forziamo il metodo httpClientMock.post() a restituirci la stringa
         // "{\"result\":[]}", ovvero array di risultati vuoto
         // anyString, any(String.class) e anyMap(), ci serve a indicare che il
         // comportamento che stiamo forzando verrà imposto al metodo quando esso venga
@@ -240,20 +229,20 @@ public class MyMathTest {
         // eseguito una volta, non più non meno
         verify(connectionManagerMock, times(1)).isConnected();
 
-        // Qui verifichiamo che httpClientMock.sendPost() sia stato eseguito una volta
-        // con i parametri giusti (sendPost("fibonacci-numbers", "", queryParameters);)
-        // Se remoteFibbonacci viene eseguito con "n=5", allora sendPost() deve
+        // Qui verifichiamo che httpClientMock.post() sia stato eseguito una volta
+        // con i parametri giusti (post("fibonacci-numbers", "", queryParameters);)
+        // Se remoteFibonacci viene eseguito con "n=5", allora post() deve
         // essere eseguito passando limit=5
         verify(httpClientMock, times(1)).post("fibonacci-numbers", "", queryParameters);
 
         // Verifichiamo che la risposta sia -1, ovvero la risposta che ci aspettiamo in caso di
-        // array di risultati vuoti da parte di sendpost()
+        // array di risultati vuoti da parte di post()
         assertEquals(BigInteger.valueOf(-1), fib);
     }
 
     /**
      * Should call connectionManagerMock.isNetworkConnected(), Should call
-     * httpClientMock.sendPost() that throws IOException due to a certain problem
+     * httpClientMock.post() that throws IOException due to a certain problem
      */
     @Test
     public void shouldThrowIOExceptionWhenHttpRequestProblem() throws Exception {
@@ -264,8 +253,7 @@ public class MyMathTest {
         queryParameters.put("limit", String.valueOf(n));
 
         // Qui forziamo il metodo connectionManagerMock.isNetworkConnected() a restituirci
-        // true quando venga eseguito, evitando una exception per collegamento a
-        // internet
+        // true quando venga eseguito, evitando una exception per collegamento a internet
         when(connectionManagerMock.isConnected()).thenReturn(true);
 
         // Qui forziamo il metodo httpClientMock.post() a lanciare IOException
@@ -278,14 +266,14 @@ public class MyMathTest {
         //JUNIT 4 - expectedEx.expect(IOException.class);
         // Qui controlliamo che remoteFibonacci() lancia IOException
         assertThrows(IOException.class, () -> {
-            // Eseguiamo il metodo remoteFibbonacci()
+            // Eseguiamo il metodo remoteFibonacci()
             myMath.remoteFibonacci(n);
         });
     }
 
     /**
      * Should call connectionManagerMock.isNetworkConnected(), Should call
-     * httpClientMock.sendPost() that returns a string not in JSON format, an then
+     * httpClientMock.post() that returns a string not in JSON format, and then
      * throw JSONException
      */
     @Test
@@ -297,11 +285,11 @@ public class MyMathTest {
         queryParameters.put("limit", String.valueOf(n));
 
         // Qui forziamo il metodo connectionManagerMock.isNetworkConnected() a restituirci
-        // true quando venga eseguito, evitando un'exception per il collegamento a
+        // true quando venga eseguito, evitando un exception per il collegamento a
         // internet
         when(connectionManagerMock.isConnected()).thenReturn(true);
 
-        // Qui forziamo il metodo httpClientMock.sendPost() a lanciare IOException
+        // Qui forziamo il metodo httpClientMock.post() a lanciare IOException
         // anyString, any(String.class) e anyMap(), ci serve a indicare che il
         // comportamento che stiamo forzando verrà imposto al metodo quando esso venga
         // eseguito con qualsiasi set di parametri, ovvero sempre
@@ -328,7 +316,7 @@ public class MyMathTest {
             myMath.remoteFibonacci(-1);
         });
         //Qui controlliamo che la Exception lanciata abbia il messaggio che ci aspettiamo
-        assertEquals(ex.getMessage(), "n index must be greater than 0");
+        assertEquals("n index must be greater than 0", ex.getMessage());
     }
 
     /**
@@ -351,7 +339,16 @@ public class MyMathTest {
 
         // Qui ci aspettiamo che il messaggio della RuntimeException sia "There is not internet connection"
         //JUNIT 4 - expectedEx.expectMessage("There is not internet connection");
-        assertEquals(ex.getMessage(), "There is not internet connection");
+        assertEquals("There is not internet connection", ex.getMessage());
+    }
+
+    @Test
+    public void assertStatic() throws IOException {
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody formBody = RequestBody.create("{}", JSON);
+        Mockito.mockStatic(RequestBody.class);
+        when(RequestBody.create(anyString(), eq(JSON))).thenReturn(formBody);
+        assertEquals(RequestBody.create("mn", JSON), formBody);
     }
 
 }
