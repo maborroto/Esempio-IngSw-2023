@@ -300,6 +300,7 @@ public class MyMathTest {
         assertThrows(JSONException.class, () -> {
             myMath.remoteFibonacci(n);
         });
+
     }
 
     /**
@@ -315,8 +316,11 @@ public class MyMathTest {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             myMath.remoteFibonacci(-1);
         });
+        
         //Qui controlliamo che la Exception lanciata abbia il messaggio che ci aspettiamo
         assertEquals("n index must be greater than 0", ex.getMessage());
+        verifyNoInteractions(httpClientMock);
+        verifyNoInteractions(connectionManagerMock);
     }
 
     /**
