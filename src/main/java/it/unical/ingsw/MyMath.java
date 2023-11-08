@@ -20,10 +20,9 @@ public class MyMath {
 
 	/**
 	 * Creating dependency within the class makes testing difficult, it might be
-	 * better to receive the dependency from outside
+	 * better to receive the dependency from outside (Dependency Injection)
 	 */
-
-	/*public MyMath() {
+	/* public MyMath() {
 		this.cm = new ConnectionManager();
 		this.hClient = new HttpClient("https://randommer.io/");
 	}*/
@@ -64,7 +63,6 @@ public class MyMath {
 	 * @return the factorial for a given integer
 	 */
 	public int factorial(int n) {
-		//commet
 		if (n == 0) {
 			return 1;
 		}
@@ -84,7 +82,6 @@ public class MyMath {
 	 * @throws IOException
 	 */
 	public BigInteger remoteFibonacci(int n) throws Exception {
-		//comment
 		if (n <= 0) {
 			throw new IllegalArgumentException("n index must be greater than 0");
 		}
@@ -106,7 +103,6 @@ public class MyMath {
 		List<Object> fibSeries = json.getJSONArray("result").toList();
 
 		String result = fibSeries.size() > 0 ? (String) fibSeries.get(fibSeries.size() - 1) : "-1";
-		List<String> a = new LinkedList<String>();
 		return new BigInteger(result);
 	}
 
