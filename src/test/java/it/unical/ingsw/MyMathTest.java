@@ -29,8 +29,8 @@ public class MyMathTest {
     private static MyMath myMath;
 
     // Initializes the @Mock before each @Test
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    //@Rule
+    //public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     // connectionManagerMock and httpClientMock will be initialized by Mockito using
     // mock instances once MockitoRule is run
